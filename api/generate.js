@@ -42,7 +42,7 @@ Text: ${inputText}`;
     const rawText = response.text().trim();
 
     const flashcards = JSON.parse(rawText);
-    return res.status(200).json({ flashcards });
+    return res.status(200).json({ cards: flashcards });
 
   } catch (error) {
     console.error('Generation error details:', error);
