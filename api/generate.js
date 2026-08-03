@@ -1,12 +1,25 @@
 import { GoogleGenAI } from '@google/genai';
 
 export default async function handler(req, res) {
+  // Enable CORS if needed
+  res.setHeader('Access-Control-Allow-Credentials', true);
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,GET');
+  res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
+
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
-    const { inputText } = req.body;
+    // Handle both parsed body or stringified body safely
+    const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+    const inputText = body?.inputText;
 
     if (!inputText) {
       return res.status(400).json({ error: 'Input text is required' });
@@ -25,9 +38,8 @@ Text: ${inputText}`;
       contents: prompt,
     });
 
-    let rawText = response.text.trim();
+    let rawText = response.text ? response.text.trim() : '';
     
-    // Clean up markdown code blocks if the model wrapped the JSON
     if (rawText.startsWith('```json')) {
       rawText = rawText.replace(/^```json/, '').replace(/```$/, '').trim();
     } else if (rawText.startsWith('```')) {
@@ -38,7 +50,7 @@ Text: ${inputText}`;
     return res.status(200).json({ flashcards });
 
   } catch (error) {
-    console.error('Generation error:', error);
-    return res.status(500).json({ error: error.message });
+    console.error('Generation error details:', error);
+    return res.status(500).json({ error: error.message || 'Internal Server Error' });
   }
 }
