@@ -29,9 +29,9 @@ export default async function handler(req, res) {
 
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     
-    // Switch to gemini-pro which is natively supported by the SDK
+    // Use gemini-1.5-pro
     const model = genAI.getGenerativeModel({ 
-      model: 'gemini-pro',
+      model: 'gemini-flash-latest',
       generationConfig: { responseMimeType: "application/json" }
     });
 
