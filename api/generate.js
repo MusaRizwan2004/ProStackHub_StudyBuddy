@@ -29,9 +29,9 @@ export default async function handler(req, res) {
 
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     
-    // Explicitly use gemini-1.5-flash
+    // Switch to gemini-pro which is natively supported by the SDK
     const model = genAI.getGenerativeModel({ 
-      model: 'gemini-1.5-flash',
+      model: 'gemini-pro',
       generationConfig: { responseMimeType: "application/json" }
     });
 
@@ -49,7 +49,6 @@ Text: ${inputText}`;
 
   } catch (error) {
     console.error('Generation error details:', error);
-    // Send the actual error message back to the client for debugging
     return res.status(500).json({ error: error.message || 'Internal Server Error' });
   }
 }
