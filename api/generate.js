@@ -24,25 +24,24 @@ export default async function handler(req, res) {
     }
 
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    
+    // Use gemini-1.5-flash with JSON MIME type configuration for foolproof output
+    const model = genAI.getGenerativeModel({ 
+      model: 'gemini-1.5-flash',
+      generationConfig: { responseMimeType: "application/json" }
+    });
 
     const prompt = `Based on the following text, generate 6 to 8 unique, high-quality flashcards. 
 Cover different aspects (definitions, locations, processes, and products) so the questions are varied and do not repeat. 
-You MUST return ONLY a valid JSON array of objects with keys "question" and "answer". No extra text, markdown wrappers, or explanations.
+Return a JSON array of objects with keys "question" and "answer".
 
 Text: ${inputText}`;
 
     const result = await model.generateContent(prompt);
     const response = await result.response;
-    let rawText = response.text().trim();
+    const rawText = response.text().trim();
 
-    // Extract JSON array using regex in case model adds extra text
-    const jsonMatch = rawText.match(/\[[\s\S]*\]/);
-    if (!jsonMatch) {
-      throw new Error('Model did not return a valid JSON array format.');
-    }
-
-    const flashcards = JSON.parse(jsonMatch[0]);
+    const flashcards = JSON.parse(rawText);
     return res.status(200).json({ flashcards });
 
   } catch (error) {
