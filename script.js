@@ -220,6 +220,11 @@ generateBtn.addEventListener('click', async () => {
     });
 
     const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.error || 'Server error occurred');
+    }
+
     if (data.cards && data.cards.length > 0) {
       await FirestoreStore.addGeneratedCards(data.cards);
       noteInput.value = '';
@@ -230,7 +235,7 @@ generateBtn.addEventListener('click', async () => {
     }
   } catch (error) {
     console.error('Generation error:', error);
-    alert('Failed to generate cards. Check console for details.');
+    alert('Error: ' + error.message);
   } finally {
     generateBtn.disabled = false;
     generateBtn.innerHTML = '<span class="material-symbols-outlined">auto_awesome</span> Generate with AI';
