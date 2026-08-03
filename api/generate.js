@@ -28,7 +28,7 @@ export default async function handler(req, res) {
 
     const prompt = `Based on the following text, generate 6 to 8 unique, high-quality flashcards. 
 Cover different aspects (definitions, locations, processes, and products) so the questions are varied and do not repeat. 
-Return ONLY a valid JSON array of objects with keys "question" and "answer". 
+You MUST return ONLY a valid JSON array of objects with keys "question" and "answer". No extra text, markdown wrappers, or explanations.
 
 Text: ${inputText}`;
 
@@ -36,13 +36,13 @@ Text: ${inputText}`;
     const response = await result.response;
     let rawText = response.text().trim();
 
-    if (rawText.startsWith('```json')) {
-      rawText = rawText.replace(/^```json/, '').replace(/```$/, '').trim();
-    } else if (rawText.startsWith('```')) {
-      rawText = rawText.replace(/^```/, '').replace(/```$/, '').trim();
+    // Extract JSON array using regex in case model adds extra text
+    const jsonMatch = rawText.match(/\[[\s\S]*\]/);
+    if (!jsonMatch) {
+      throw new Error('Model did not return a valid JSON array format.');
     }
 
-    const flashcards = JSON.parse(rawText);
+    const flashcards = JSON.parse(jsonMatch[0]);
     return res.status(200).json({ flashcards });
 
   } catch (error) {
