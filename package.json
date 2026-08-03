@@ -1,4 +1,7 @@
 {
+  "name": "studybuddy",
+  "version": "1.0.0",
+  "type": "module",
   "dependencies": {
     "@google/generative-ai": "^0.24.1"
   }

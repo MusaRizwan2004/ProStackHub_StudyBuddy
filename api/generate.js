@@ -1,7 +1,6 @@
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export default async function handler(req, res) {
-  // Enable CORS if needed
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,GET');
@@ -17,7 +16,6 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Handle both parsed body or stringified body safely
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
     const inputText = body?.inputText;
 
@@ -25,7 +23,8 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Input text is required' });
     }
 
-    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
     const prompt = `Based on the following text, generate 6 to 8 unique, high-quality flashcards. 
 Cover different aspects (definitions, locations, processes, and products) so the questions are varied and do not repeat. 
@@ -33,13 +32,10 @@ Return ONLY a valid JSON array of objects with keys "question" and "answer".
 
 Text: ${inputText}`;
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: prompt,
-    });
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    let rawText = response.text().trim();
 
-    let rawText = response.text ? response.text.trim() : '';
-    
     if (rawText.startsWith('```json')) {
       rawText = rawText.replace(/^```json/, '').replace(/```$/, '').trim();
     } else if (rawText.startsWith('```')) {
