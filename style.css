@@ -1,0 +1,89 @@
+:root {
+  --bg-dark: #0f172a;
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --primary-accent: #6366f1;
+  --primary-glow: rgba(99, 102, 241, 0.5);
+  --hard-color: #ef4444;
+  --good-color: #f59e0b;
+  --easy-color: #10b981;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+
+body { background-color: var(--bg-dark); color: var(--text-primary); min-height: 100vh; overflow: hidden; position: relative; }
+
+/* Animated Background Gradients */
+.bg-orb { position: absolute; border-radius: 50%; filter: blur(80px); z-index: -1; opacity: 0.4; animation: float 10s infinite alternate ease-in-out; }
+.orb-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: radial-gradient(circle, #4f46e5 0%, transparent 70%); }
+.orb-2 { bottom: -20%; right: -10%; width: 60vw; height: 60vw; background: radial-gradient(circle, #9333ea 0%, transparent 70%); animation-delay: -5s; }
+
+@keyframes float { 0% { transform: translate(0, 0); } 100% { transform: translate(50px, 50px); } }
+
+/* Layout Setup */
+.app-container { display: flex; height: 100vh; width: 100vw; padding: 1.5rem; gap: 1.5rem; }
+.glass-panel { background: var(--glass-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--glass-border); border-radius: 20px; }
+
+/* Sidebar */
+.app-sidebar { width: 280px; display: flex; flex-direction: column; padding: 2rem; }
+.brand { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 3rem; }
+.logo-icon { color: var(--primary-accent); font-size: 2rem; }
+.brand h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.5px; }
+
+.app-nav { display: flex; flex-direction: column; gap: 0.5rem; flex-grow: 1; }
+.app-nav button { display: flex; align-items: center; gap: 1rem; background: transparent; border: none; padding: 1rem; border-radius: 12px; color: var(--text-secondary); font-size: 1rem; font-weight: 500; cursor: pointer; transition: all 0.3s; text-align: left; }
+.app-nav button:hover { background: rgba(255,255,255,0.05); color: var(--text-primary); }
+.app-nav button.active { background: var(--primary-accent); color: white; box-shadow: 0 4px 15px var(--primary-glow); }
+.badge { background: rgba(0,0,0,0.3); padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; margin-left: auto; }
+
+.user-profile { display: flex; align-items: center; gap: 1rem; padding-top: 1rem; border-top: 1px solid var(--glass-border); }
+.avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #6366f1, #9333ea); }
+
+/* Main Content Area */
+.app-main { flex-grow: 1; overflow-y: auto; padding: 2rem 4rem; display: flex; flex-direction: column; }
+.view { display: none; animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); height: 100%; }
+.active-view { display: flex; flex-direction: column; }
+
+.view-header { margin-bottom: 2rem; }
+.view-header h2 { font-size: 2.2rem; margin-bottom: 0.5rem; font-weight: 700; }
+.view-header p { color: var(--text-secondary); font-size: 1.1rem; }
+
+/* Card Composer */
+.card-composer { padding: 2rem; display: flex; flex-direction: column; gap: 1.5rem; }
+textarea { width: 100%; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); color: var(--text-primary); border-radius: 12px; padding: 1.5rem; font-size: 1.1rem; resize: none; transition: border 0.3s; }
+textarea:focus { outline: none; border-color: var(--primary-accent); box-shadow: 0 0 0 2px var(--primary-glow); }
+.action-row { display: flex; justify-content: flex-end; }
+
+/* Buttons */
+.primary-btn { display: flex; align-items: center; gap: 0.5rem; background: var(--primary-accent); color: white; border: none; padding: 1rem 2rem; border-radius: 12px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+.primary-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px var(--primary-glow); }
+.secondary-btn { width: 100%; padding: 1.2rem; border: none; color: var(--text-secondary); font-weight: 600; font-size: 1.1rem; cursor: pointer; transition: all 0.3s; margin-top: 2rem; }
+.secondary-btn:hover { background: rgba(255,255,255,0.1); color: var(--text-primary); }
+
+/* 3D Flashcard */
+.flashcard-wrapper { max-width: 600px; margin: 0 auto; width: 100%; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; }
+.flashcard-container { background: transparent; width: 100%; height: 400px; perspective: 1500px; }
+.flashcard-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.8s cubic-bezier(0.4, 0.2, 0.2, 1); transform-style: preserve-3d; cursor: pointer; }
+.flashcard-container.flipped .flashcard-inner { transform: rotateY(180deg); }
+
+.flashcard-front, .flashcard-back { position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 3rem; text-align: center; }
+.flashcard-back { transform: rotateY(180deg); border-color: rgba(255,255,255,0.15); box-shadow: inset 0 0 40px rgba(255,255,255,0.02); }
+
+.card-label { position: absolute; top: 1.5rem; left: 2rem; color: var(--primary-accent); font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+.flashcard-front h3, .flashcard-back h3 { font-size: 1.8rem; font-weight: 500; line-height: 1.4; }
+
+/* SM-2 Buttons */
+.sm2-controls { position: absolute; bottom: 2rem; display: flex; gap: 1rem; width: 100%; justify-content: center; padding: 0 2rem; }
+.grade-btn { flex: 1; padding: 0.8rem; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; color: white; background: rgba(255,255,255,0.1); backdrop-filter: blur(4px); transition: all 0.2s; }
+.hard:hover { background: var(--hard-color); box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4); }
+.good:hover { background: var(--good-color); box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4); }
+.easy:hover { background: var(--easy-color); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4); }
+
+@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Scrollbar tweaks */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--glass-border); border-radius: 4px; }

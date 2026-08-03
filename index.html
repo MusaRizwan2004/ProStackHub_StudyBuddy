@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StudyBuddy | Pro</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+</head>
+<body>
+  <!-- Animated Background Orbs -->
+  <div class="bg-orb orb-1"></div>
+  <div class="bg-orb orb-2"></div>
+
+  <div class="app-container">
+    <!-- Sidebar Navigation -->
+    <aside class="app-sidebar glass-panel">
+      <div class="brand">
+        <span class="material-symbols-outlined logo-icon">psychology</span>
+        <h1>StudyBuddy</h1>
+      </div>
+      <nav class="app-nav">
+        <button id="nav-add" class="active">
+          <span class="material-symbols-outlined">add_circle</span> Generate
+        </button>
+        <button id="nav-review">
+          <span class="material-symbols-outlined">school</span> Review 
+          <span class="badge" id="review-count">0</span>
+        </button>
+        <button id="nav-cards">
+          <span class="material-symbols-outlined">view_carousel</span> All Cards
+        </button>
+      </nav>
+      <div class="user-profile">
+        <div class="avatar"></div>
+        <span>Pro User</span>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="app-main">
+      
+      <!-- Add Notes View -->
+      <section id="view-add" class="view active-view">
+        <header class="view-header">
+          <h2>Create Flashcards</h2>
+          <p>Let AI extract the key concepts from your notes.</p>
+        </header>
+        <div class="card-composer glass-panel">
+          <textarea id="note-input" placeholder="Paste your lecture notes, documentation, or study materials here..." rows="8"></textarea>
+          <div class="action-row">
+            <button id="btn-generate" class="primary-btn glow-effect">
+              <span class="material-symbols-outlined">auto_awesome</span> Generate with AI
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Review View -->
+      <section id="view-review" class="view">
+        <header class="view-header">
+          <h2>Daily Review</h2>
+          <p>Master your knowledge with spaced repetition.</p>
+        </header>
+        
+        <div class="flashcard-wrapper">
+          <div class="flashcard-container" id="flashcard">
+            <div class="flashcard-inner">
+              <div class="flashcard-front glass-panel">
+                <span class="card-label">Question</span>
+                <h3 id="card-front-text">Are you ready to study?</h3>
+              </div>
+              <div class="flashcard-back glass-panel">
+                <span class="card-label">Answer</span>
+                <h3 id="card-back-text">Let's go!</h3>
+                <div class="sm2-controls">
+                  <button class="grade-btn hard" data-grade="1">Hard</button>
+                  <button class="grade-btn good" data-grade="3">Good</button>
+                  <button class="grade-btn easy" data-grade="5">Easy</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <button id="btn-flip" class="secondary-btn glass-panel">Tap to reveal answer</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script type="module" src="firebase.js"></script>
+  <script type="module" src="script.js"></script>
+</body>
+</html>
