@@ -1,4 +1,4 @@
-import { db } from './firebase.js';
+import { db, getCurrentUserId } from './firebase.js';
 import { 
   collection, 
   addDoc, 
@@ -27,54 +27,56 @@ const CARDS_COLLECTION = "cards";
 
 const FirestoreStore = {
   async addGeneratedCards(rawCards) {
-    const batchPromises = rawCards.map(async (c) => {
-      const cardData = {
-        front: c.front,
-        back: c.back,
-        repetition: 0,
-        interval: 0,
-        easeFactor: 2.5,
-        nextReviewDate: Timestamp.now(),
-        createdAt: Timestamp.now() // NEW: lets us sort newest-first
-      };
-      return await addDoc(collection(db, CARDS_COLLECTION), cardData);
-    });
-    await Promise.all(batchPromises);
+  const batchPromises = rawCards.map(async (c) => {
+    const cardData = {
+      front: c.front,
+      back: c.back,
+      repetition: 0,
+      interval: 0,
+      easeFactor: 2.5,
+      nextReviewDate: Timestamp.now(),
+      createdAt: Timestamp.now(),
+      userId: currentUserId   // NEW
+    };
+    return await addDoc(collection(db, CARDS_COLLECTION), cardData);
+  });
+  await Promise.all(batchPromises);
   },
 
   // Fetch all cards, newest first
   async getAllCards() {
-    try {
-      const q = query(collection(db, CARDS_COLLECTION), orderBy("createdAt", "desc"));
-      const querySnapshot = await getDocs(q);
-      const cards = [];
-      querySnapshot.forEach((docSnap) => {
-        cards.push({ id: docSnap.id, ...docSnap.data() });
-      });
-      return cards;
+  try {
+    const q = query(
+      collection(db, CARDS_COLLECTION),
+      where("userId", "==", currentUserId),
+      orderBy("createdAt", "desc")
+    );
+    const querySnapshot = await getDocs(q);
+    const cards = [];
+    querySnapshot.forEach((docSnap) => cards.push({ id: docSnap.id, ...docSnap.data() }));
+    return cards;
     } catch (error) {
-      console.error("Error fetching all cards:", error);
-      return [];
+    console.error("Error fetching all cards:", error);
+    return [];
     }
   },
 
-  async getDueCards() {
-    try {
-      const now = Timestamp.now();
-      const q = query(
-        collection(db, CARDS_COLLECTION), 
-        where("nextReviewDate", "<=", now)
-      );
-      const querySnapshot = await getDocs(q);
-      const dueCards = [];
-      querySnapshot.forEach((docSnap) => {
-        dueCards.push({ id: docSnap.id, ...docSnap.data() });
-      });
-      return dueCards;
-    } catch (error) {
-      console.error("Error fetching due cards:", error);
-      return [];
-    }
+ async getDueCards() {
+  try {
+    const now = Timestamp.now();
+    const q = query(
+      collection(db, CARDS_COLLECTION),
+      where("userId", "==", currentUserId),
+      where("nextReviewDate", "<=", now)
+    );
+    const querySnapshot = await getDocs(q);
+    const dueCards = [];
+    querySnapshot.forEach((docSnap) => dueCards.push({ id: docSnap.id, ...docSnap.data() }));
+    return dueCards;
+   } catch (error) {
+    console.error("Error fetching due cards:", error);
+    return [];
+   }
   },
 
   async updateCardStats(cardId, newStats) {
@@ -163,6 +165,7 @@ function showToast(message) {
 // ==========================================
 let reviewQueue = [];
 let currentCardIndex = 0;
+let currentUserId = null;
 
 const navButtons = document.querySelectorAll('.app-nav button');
 const views = document.querySelectorAll('.view');
@@ -176,6 +179,7 @@ const noteInput = document.getElementById('note-input');
 const cardsListEl = document.getElementById('cards-list');
 
 document.addEventListener('DOMContentLoaded', async () => {
+  currentUserId = await getCurrentUserId();
   await updateReviewBadge();
 });
 
@@ -340,25 +344,8 @@ async function renderCardsLibrary() {
       </div>
     `;
 
-    // Delete with a two-click confirm instead of a browser popup
-    const deleteBtn = row.querySelector('.delete-btn');
-    let confirming = false;
-    deleteBtn.addEventListener('click', async () => {
-      if (!confirming) {
-        confirming = true;
-        deleteBtn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 1.1rem;">warning</span>';
-        deleteBtn.title = 'Click again to confirm delete';
-        deleteBtn.style.background = '#c0553b';
-        setTimeout(() => {
-          if (confirming) {
-            confirming = false;
-            deleteBtn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 1.1rem;">delete</span>';
-            deleteBtn.title = 'Delete Card';
-            deleteBtn.style.background = '';
-          }
-        }, 3000);
-        return;
-      }
+    // Single-click delete
+    row.querySelector('.delete-btn').addEventListener('click', async () => {
       await FirestoreStore.deleteCard(card.id);
       showToast('Card deleted.');
       await renderCardsLibrary();
