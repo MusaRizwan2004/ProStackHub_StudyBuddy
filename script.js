@@ -229,7 +229,7 @@ generateBtn.addEventListener('click', async () => {
       noteInput.value = '';
       await updateReviewBadge();
       showToast(`Saved ${data.cards.length} new flashcards.`);
-      await goToView('nav-cards'); // jump straight to All Cards, no alert
+      await goToView('nav-review'); // jump straight to Review, no alert
     } else {
       showToast('Could not parse flashcards from response.');
     }
