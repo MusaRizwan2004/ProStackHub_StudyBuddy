@@ -1,5 +1,9 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
+export const config = {
+  maxDuration: 30,
+};
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -28,10 +32,9 @@ export default async function handler(req, res) {
     }
 
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    
-    // Use gemini-1.5-pro
-    const model = genAI.getGenerativeModel({ 
-      model: 'gemini-flash-latest',
+
+    const model = genAI.getGenerativeModel({
+      model: "gemini-3.5-flash-lite",
       generationConfig: { responseMimeType: "application/json" }
     });
 
@@ -44,7 +47,14 @@ Text: ${inputText}`;
     const response = await result.response;
     const rawText = response.text().trim();
 
-    const flashcards = JSON.parse(rawText);
+    let flashcards;
+    try {
+      flashcards = JSON.parse(rawText);
+    } catch (e) {
+      console.error('Failed to parse Gemini output:', rawText);
+      return res.status(500).json({ error: 'AI returned malformed data. Please try again.' });
+    }
+
     return res.status(200).json({ cards: flashcards });
 
   } catch (error) {
